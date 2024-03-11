@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PuppetLink</title>
     <style>
+        .header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .orientation_list li::after{
             content: '°';
         }
@@ -21,7 +26,10 @@
 </head>
 
 <body>
-    <h1>Sensor</h1>
+    <header class="header">
+        <h1>Sensor</h1>
+        <P id = "ws_state">ws Sending...</P>
+    </header>
     <main>
         <button id = permission_btn>Start</button>
         <div>
@@ -166,6 +174,16 @@
             orientation_b.innerText = b;
             orientation_g.innerText = g;
         }
+
+        /* websocket */
+        let url = 'wss://192.168.0.16:8080';
+        // 建立 WebSocket
+        const ws = new WebSocket(url);
+        // 當頁面被隱藏或關閉，則 webSocket 斷線
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden')
+                ws.close();
+        });
     </script>
 </body>
 
