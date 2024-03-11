@@ -94,6 +94,13 @@
     <script>
         document.querySelector('#permission_btn').addEventListener('click',onClick);
 
+        let motionDatas = {
+            accDatas: [],
+            accGDatas: [],
+            gyroDatas: [],
+            orientDatas: []
+        };
+
         function onClick() {
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 // Handle iOS 13+ devices.
@@ -134,19 +141,19 @@
             ];
        
             // DOM element
-            accDom = [
+            const accDom = [
                 document.querySelector('#acceleration_x'),
                 document.querySelector('#acceleration_y'),
                 document.querySelector('#acceleration_z')
             ];
 
-            accGDom = [
+            const accGDom = [
                 document.querySelector('#acceleration_gravity_x'),
                 document.querySelector('#acceleration_gravity_y'),
                 document.querySelector('#acceleration_gravity_z')
             ];
 
-            gyroDom = [
+            const gyroDom = [
                 document.querySelector('#gyroscope_a'),
                 document.querySelector('#gyroscope_b'),
                 document.querySelector('#gyroscope_g')
@@ -160,19 +167,17 @@
 
         function handleOrientation(event) {
             // Sensor data
-            const a = event.alpha;
-            const b = event.beta;
-            const g = event.gamma;
+            const orientDatas = [event.alpha, event.beta, event.gamma];
 
             // DOM element
-            const orientation_a = document.querySelector('#orientation_a');
-            const orientation_b = document.querySelector('#orientation_b');
-            const orientation_g = document.querySelector('#orientation_g');
+            const orientDom = [
+                document.querySelector('#orientation_a'),
+                document.querySelector('#orientation_b'),
+                document.querySelector('#orientation_g')
+            ];
 
-            // Assign 
-            orientation_a.innerText = a;
-            orientation_b.innerText = b;
-            orientation_g.innerText = g;
+            // Assign    
+            gyroDom.map((e,id) => e.innerText = orientDatas[id]);
         }
 
         /* websocket */
