@@ -19,6 +19,9 @@ var options = {
   cert: fs.readFileSync('./ssl/server-cert.pem')
 };
 
+// other properties
+let sensor;
+
 // 建立 HTTPS 伺服器
 // 第一個引數:伺服器的設定；第二個引數: Callback function，當有 req 進來就執行。在此我們是用 express處理這些 req。
 const server = https.createServer(options, app);
@@ -42,13 +45,11 @@ app.get('/user', (req, res) => {
 
 // 處理 '/api/data' 路徑的 GET 請求，並返回 JSON 格式的資料
 app.get('/api/data', (req, res) => {
-    let data = {
-        x:255,
-        y:0,
-        z:128 
-    };
+    // sensor 是 null 或 undefined 就忽略
+    if(!sensor) return;
+
     // 使用 res.json() 方法將 JS 物件轉換為 JSON 格式，並返回給客戶端
-    res.json(data);
+    res.json(sensor);
     console.log(`/api/data get client req`);
 });
 
@@ -61,6 +62,18 @@ let wsClients = [];
 wss.on('connection', ws => {
     wsClients.push(ws);
     console.log(`Client connected! Total ${wsClients.length}`)
+    
+    // 當收到client消息時
+    ws.on('message', data => {
+        // 只處理第一順位的 clinet
+        if(wsClients.indexOf(ws) !== 0)
+            return;
+
+        // JSON 資料格式 to JS object
+        sensor = JSON.parse(data);  
+        // console.log(`from client${wsClients.indexOf(ws)}: ${sensor}`); // 可在 terminal 看收到的訊息
+        console.log(sensor);
+    })
 
     // 當連線關閉
     ws.on('close', () => {

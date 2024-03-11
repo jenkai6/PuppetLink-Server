@@ -94,12 +94,30 @@
     <script>
         document.querySelector('#permission_btn').addEventListener('click',onClick);
 
-        let motionDatas = {
-            accDatas: [],
-            accGDatas: [],
-            gyroDatas: [],
-            orientDatas: []
-        };
+        // let sensor = {
+        //         motionData: {
+        //             acc: [],
+        //             accGravity: [],
+        //             gyro: []        
+        //         },
+        //         orientData: {
+        //             orinet:[]
+        //         }
+        // };
+
+
+        let sensor = {};
+        let ws;
+
+        function checkAndSendData(){
+            if(ws.readyState !== WebSocket.OPEN)
+                return;
+            // 如果資料都備齊了，則傳給伺服器
+            if(sensor.motionData !== null && sensor.orientData !== null){
+                // JS object to JSON 資料格式
+                ws.send(JSON.stringify(sensor));
+            }
+        }
 
         function onClick() {
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
@@ -109,6 +127,7 @@
                     if (state === 'granted'){
                         window.addEventListener("deviceorientation", handleOrientation);
                         window.addEventListener("devicemotion", handleMotion);
+                        initWebSocket();
                     } else
                         console.error('Request to access the orientation was rejected');
                 })
@@ -117,6 +136,7 @@
                 // Handle regular non iOS 13+ devices.
                 window.addEventListener("deviceorientation", handleOrientation);
                 window.addEventListener("devicemotion", handleMotion);
+                initWebSocket();
             }
         }
 
@@ -159,10 +179,18 @@
                 document.querySelector('#gyroscope_g')
             ];
 
-            // Assign 
+            // Assign to HTML
             accDom.map((e,id) => e.innerText = accDatas[id]);
             accGDom.map((e,id) => e.innerText = accGDatas[id]);
             gyroDom.map((e,id) => e.innerText = gyroDatas[id]);
+
+            // Assign to sensor object
+            sensor['motionData'] = {
+                    acc: [...accDatas],
+                    accGravity: [...accGDatas],
+                    gyro: [...gyroDatas]        
+            };
+            checkAndSendData();
         }
 
         function handleOrientation(event) {
@@ -176,19 +204,30 @@
                 document.querySelector('#orientation_g')
             ];
 
-            // Assign    
-            gyroDom.map((e,id) => e.innerText = orientDatas[id]);
+            // Assign to HTML
+            orientDom.map((e,id) => e.innerText = orientDatas[id]);
+
+            // Assign to sensor object
+            sensor['orientData'] = {
+                orinet: [...orientDatas] 
+            };
+            checkAndSendData();
         }
 
-        /* websocket */
-        let url = 'wss://192.168.0.16:8080';
-        // 建立 WebSocket
-        const ws = new WebSocket(url);
-        // 當頁面被隱藏或關閉，則 webSocket 斷線
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden')
-                ws.close();
-        });
+        function initWebSocket(){   
+            // 如果已經初始化了，就忽略
+            if(ws) return;
+
+            /* websocket */
+            let url = 'wss://192.168.0.16:8080';
+            // 建立 WebSocket
+            ws = new WebSocket(url);
+            // 當頁面被隱藏或關閉，則 webSocket 斷線
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden')
+                    ws.close();
+            });
+        }
     </script>
 </body>
 
