@@ -46,7 +46,10 @@ app.get('/user', (req, res) => {
 // 處理 '/api/data' 路徑的 GET 請求，並返回 JSON 格式的資料
 app.get('/api/data', (req, res) => {
     // sensor 是 null 或 undefined 就忽略
-    if(!sensor) return;
+    if(!sensor){
+        res.send("real-time data not found");
+        return;
+    }
 
     // 使用 res.json() 方法將 JS 物件轉換為 JSON 格式，並返回給客戶端
     res.json(sensor);
@@ -80,6 +83,10 @@ wss.on('connection', ws => {
       let index = wsClients.indexOf(ws);
       wsClients.splice(index, 1);
       console.log(`Close connected! Total ${wsClients.length}`)
+      // 只處理第一順位的 clinet
+      if(wsClients.length === 0){
+        sensor = null;
+      }
     })
   })
 
