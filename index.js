@@ -27,11 +27,13 @@ app.set('view engine', 'ejs');
 // 處理根路徑 '/' 的 GET 請求，並返回在 views 資料夾底下 'index.ejs' 的視圖（即 template + data 生成後的結果）
 app.get('/', (req, res) => {
     res.render('index');  // 不用 .ejs 副檔名
+    console.log(`/ get client req`);
 })
 
 // 處理 '/user' 路徑的 GET 請求，並返回在 views 資料夾底下 'user.ejs' 的視圖
 app.get('/user', (req, res) => {
     res.render('user');
+    console.log(`/user get client req`);
 })
 
 // 處理 '/api/data' 路徑的 GET 請求，並返回 JSON 格式的資料
@@ -43,6 +45,7 @@ app.get('/api/data', (req, res) => {
     };
     // 使用 res.json() 方法將 JS 物件轉換為 JSON 格式，並返回給客戶端
     res.json(data);
+    console.log(`/api/data get client req`);
 });
 
 // 啟動 HTTPS 伺服器，並開始監聽指定的 Port
