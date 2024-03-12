@@ -22,13 +22,21 @@
         .gyroscope_list li::after{
             content: '°/s';
         }
+
+        .waiting{
+            color: rgb(204, 41, 57);
+        }
+
+        .sending{
+            color: rgb(10, 177, 80);
+        }
     </style>
 </head>
 
 <body>
     <header class="header">
         <h1>Sensor</h1>
-        <P id = "ws_state">ws Sending...</P>
+        <P id = "sending_state" class="waiting"></P>
     </header>
     <main>
         <button id = permission_btn>Start</button>
@@ -94,6 +102,7 @@
     <script>
         document.querySelector('#permission_btn').addEventListener('click',onClick);
 
+        /* Sensor Template */
         // let sensor = {
         //         motionData: {
         //             acc: [],
@@ -104,7 +113,6 @@
         //             orinet:[]
         //         }
         // };
-
 
         let sensor = {};
         let ws;
@@ -219,13 +227,35 @@
             if(ws) return;
 
             /* websocket */
-            let url = 'wss://192.168.0.16:8080';
+            let url = 'wss://192.168.0.16:8080/user';
             // 建立 WebSocket
             ws = new WebSocket(url);
+            // 當收到 server的訊息
+            ws.onmessage = event =>{
+                let order = Number(event.data);
+                console.log(order);
+                const sendingState = document.querySelector('#sending_state');
+                if(order === 0){
+                    sendingState.innerText = 'sending...';
+                    if(!sendingState.classList.contains("sending"))
+                        sendingState.classList.add("sending");
+                }
+                else{
+                    sendingState.innerText = 'waiting...';
+                    if(sendingState.classList.contains("sending"))
+                        sendingState.classList.remove("sending");
+                }  
+            }
+    
             // 當頁面被隱藏或關閉，則 webSocket 斷線
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'hidden')
+                if (document.visibilityState === 'hidden'){
                     ws.close();
+                    const sendingState = document.querySelector('#sending_state');
+                    sendingState.innerText = "offline";
+                    if(sendingState.classList.contains("sending"))
+                        sendingState.classList.remove("sending");
+                }
             });
         }
     </script>

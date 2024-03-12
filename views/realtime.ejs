@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PuppetLink</title>
+</head>
+<body>
+    <pre id = "display_data"></pre>
+    <script>
+        /* websocket */
+        let url = 'wss://192.168.0.16:8080/realtime';
+        // 建立 WebSocket
+        ws = new WebSocket(url);    
+
+        //接收 Server 的訊息
+        ws.onmessage = event => {
+            const displayData = document.querySelector('#display_data');
+
+            let sensor = JSON.parse(event.data);
+            let sensorJSON = JSON.stringify(sensor, null, 2);
+            
+            displayData.innerText = sensorJSON;
+        }
+    </script>
+</body>
+</html>
